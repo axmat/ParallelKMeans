@@ -1,2 +1,2 @@
-# Parallel-KMeans
- Implementation of Parallel K-Means Clustering Algorithm
+## Parallel-KMeans Clustering Algorithm
+
