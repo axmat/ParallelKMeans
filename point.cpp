@@ -1,12 +1,12 @@
 
 #pragma once
+
 #include <cstddef>
 #include <type_traits>
 #include <vector>
-#include "point.hpp"
+#include "Point.hpp"
 
-namespace PKA {
-
+namespace KM {
 
 template <typename T> Point<T>::Point(const std::vector<T> &coord) {
   _coord = coord;

@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include "point.hpp"
+#include "Point.hpp"
 
 #include <cstddef>
 #include <cstdlib>
 #include <vector>
 
-namespace PKA {
+namespace KM {
 
 template <typename T>
 class Cluster {
@@ -24,7 +24,7 @@ public:
 
   std::size_t GetDim() const;
 
-  const std::vector<T> &GetCoord() const;
+  std::vector<T> &GetCoord() const;
 
   void SetCoord(const std::vector<T> &);
 
@@ -36,6 +36,5 @@ public:
 
   //void Update();
 };
-
 
 } // namespace PKA

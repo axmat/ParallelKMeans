@@ -1,12 +1,11 @@
-//
-//
 
 #pragma once
+
 #include <cstddef>
 #include <type_traits>
 #include <vector>
 
-namespace PKA {
+namespace KM {
 
 template <typename T> class Point {
   static_assert(std::is_floating_point<T>::value, "T must be a floating point");

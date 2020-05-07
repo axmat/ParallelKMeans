@@ -1,14 +1,14 @@
 
 #pragma once
 
-#include "point.hpp"
-#include "cluster.hpp"
+#include "Point.hpp"
+#include "Cluster.hpp"
 
 #include <cstddef>
 #include <cstdlib>
 #include <vector>
 
-namespace PKA {
+namespace KM {
 
 // constructor
 template <typename T> Cluster<T>::Cluster(const std::vector<T> &coord) {
@@ -24,7 +24,7 @@ template <typename T> std::size_t Cluster<T>::GetDim() const {
   return _coord.size();
 }
 
-template <typename T> const std::vector<T> &Cluster<T>::GetCoord() const {
+template <typename T> std::vector<T> &Cluster<T>::GetCoord() const {
   return _coord;
 }
 
