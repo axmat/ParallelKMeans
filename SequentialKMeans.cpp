@@ -13,7 +13,7 @@
 #include "Point.hpp"
 #include "SequentialKMeans.hpp"
 
-namespace SeqKMA {
+namespace SeqKM {
 
 using KM::Point;
 using KM::Cluster;
@@ -136,7 +136,7 @@ void updateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>> &
 // Implementation of kmeans clustering algorithm
 template <typename T>
 std::vector<Cluster<T>>
-kmeans(std::vector<Point<T>> &data, const std::size_t &nClusters, const std::size_t &iterMax = 10000, const T threshold = 0.01) {
+kmeans(std::vector<Point<T>> &data, const std::size_t &nClusters, const std::size_t &iterMax, const T threshold) {
    auto clusters = initClusters(data, nClusters);
    std::size_t nData = data.size();
    std::size_t nIter = 0;
