@@ -12,31 +12,28 @@
 #include "Cluster.hpp"
 #include "Point.hpp"
 
-namespace SeqKM {
-
-using KM::Point;
-using KM::Cluster;
+namespace KM {
 
 // Initialize centers using kmeans++ algorithm
 template <typename T>
-auto initClusters(const std::vector<Point<T>> &data, const std::size_t &nClusters);
+auto SeqInitClusters(const std::vector<Point<T>> &data, const std::size_t &nClusters);
 
 // Squared Euclidian Distance
 template <typename T>
-T sqEuclidianDist(const Point<T> &point, const Cluster<T> &cluster);
+T SeqSqEuclidianDist(const Point<T> &point, const Cluster<T> &cluster);
 
 // Assignment step
 template<typename T>
-std::size_t assignPoints(std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters);
+std::size_t SeqAssignPoints(std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters);
 
 // Update the clusters
 template <typename T>
-void updateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters);
+void SeqUpdateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters);
 
-// Implementation of kmeans clustering algorithm
+// Implementation of sequential kmeans clustering algorithm
 template <typename T>
 std::vector<Cluster<T>>
-kmeans(std::vector<Point<T>> &data, const std::size_t &nClusters, const std::size_t &iterMax = 10'000, const T threshold = 0.01);
+SeqKMeans(std::vector<Point<T>> &data, const std::size_t &nClusters, const std::size_t &iterMax = 10'000, const T threshold = 0.01);
 
-} // namespace SeqKM
+} // namespace KM
 

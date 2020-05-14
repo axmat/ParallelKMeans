@@ -13,16 +13,13 @@
 #include "Point.hpp"
 #include "SequentialKMeans.hpp"
 
-namespace SeqKM {
-
-using KM::Point;
-using KM::Cluster;
+namespace KM {
 
 static std::random_device rdev;
 static std::mt19937_64 gen(rdev());
 
 template <typename T>
-auto initClusters(const std::vector<Point<T>> &data, const std::size_t &nClusters) {
+auto SeqInitClusters(const std::vector<Point<T>> &data, const std::size_t &nClusters) {
   auto nData = data.size();
   std::uniform_int_distribution<std::size_t> unifIntDist(0, nData - 1);
   std::size_t nCluster = unifIntDist(gen);
@@ -35,7 +32,7 @@ auto initClusters(const std::vector<Point<T>> &data, const std::size_t &nCluster
   for (std::size_t i = 0; i < nClusters; i++) {
     auto sum = T(.0);
     for (std::size_t i = 0; i < nData; i++) {
-      T dist = sqEuclidianDist(data[i], clusters[nCluster]);
+      T dist = SeqSqEuclidianDist(data[i], clusters[nCluster]);
       if (dist < minDist[i])
         minDist[i] = dist; 
       sum += minDist[i];
@@ -69,7 +66,7 @@ auto initClusters(const std::vector<Point<T>> &data, const std::size_t &nCluster
 
 // Squared Euclidian Distance.
 template <typename T>
-T sqEuclidianDist(const Point<T> &point, const Cluster<T> &cluster) {
+T SeqSqEuclidianDist(const Point<T> &point, const Cluster<T> &cluster) {
    auto ndim = point.GetDim();
    auto &pointCoord = point.GetCoord();
    auto &clusterCoord = cluster.GetCoord();
@@ -84,17 +81,17 @@ T sqEuclidianDist(const Point<T> &point, const Cluster<T> &cluster) {
 // Assignment step
 // return number of reassigned points
 template<typename T>
-std::size_t assignPoints(std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters){
+std::size_t SeqAssignPoints(std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters){
    std::size_t nData = data.size();
    std::size_t nClusters = clusters.size();
    std::size_t nReasigned = 0;
    for(std::size_t i=0; i < nData; i++) {
       auto &P = data[i];
-      T minDist = sqEuclidianDist(P, clusters[0]);
+      T minDist = SeqSqEuclidianDist(P, clusters[0]);
       std::size_t id = 0;
       for(std::size_t j = 0; j < nClusters; j++) {
          auto &C = clusters[j];
-         T dist = sqEuclidianDist(P, C);
+         T dist = SeqSqEuclidianDist(P, C);
          if (dist < minDist){
             minDist = dist;
             id = j;
@@ -111,7 +108,7 @@ std::size_t assignPoints(std::vector<Point<T>> &data, std::vector<Cluster<T>> &c
 
 // Update the clusters
 template <typename T>
-void updateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters) {
+void SeqUpdateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters) {
    std::size_t nClusters = clusters.size();
    for(std::size_t nCluster = 0; nCluster < nClusters; nCluster++){
       auto &C = clusters[nCluster];
@@ -133,25 +130,25 @@ void updateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>> &
    }
 }
 
-// Implementation of kmeans clustering algorithm
+// Implementation of parallel sequential clustering algorithm
 template <typename T>
 std::vector<Cluster<T>>
-kmeans(std::vector<Point<T>> &data, const std::size_t &nClusters, const std::size_t &iterMax, const T threshold) {
-   auto clusters = initClusters(data, nClusters);
+SeqKMeans(std::vector<Point<T>> &data, const std::size_t &nClusters, const std::size_t &iterMax, const T threshold) {
+   auto clusters = SeqInitClusters(data, nClusters);
    std::size_t nData = data.size();
    std::size_t nIter = 0;
    std::size_t nReasigned = data.size();
    T fReasigned = T(1.0);
    while( nIter < iterMax && fReasigned> threshold) {
-      nReasigned = assignPoints(data, clusters);
-      updateClusters(data, clusters);
+      nReasigned = SeqAssignPoints(data, clusters);
+      SeqUpdateClusters(data, clusters);
       fReasigned = nReasigned / nData;
       nIter++;
    }
    if(fReasigned > threshold)
-      throw std::runtime_error("KMeans algorithm did not converge.");
+      throw std::runtime_error("Sequential KMeans algorithm did not converge.");
    return clusters;
 }
 
-} // namespace SeqKM
+} // namespace KM
 

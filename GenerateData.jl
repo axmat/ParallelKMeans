@@ -31,8 +31,9 @@ function main()
    for (i, k) in enumerate(10.0 .^ range(1,stop=6,length=20))
       n = trunc(Int64, k)
       filename = "data/$i.csv"
-      CSV.write(filename, df[1:n, :])
+      CSV.write(filename, df[1:n, :]; header = false)
    end
 end
 
 main()
+
