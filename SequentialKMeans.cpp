@@ -130,7 +130,7 @@ void SeqUpdateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>
    }
 }
 
-// Implementation of parallel sequential clustering algorithm
+// Implementation of sequential KMeans clustering algorithm
 template <typename T>
 std::vector<Cluster<T>>
 SeqKMeans(std::vector<Point<T>> &data, const std::size_t &nClusters, const std::size_t &iterMax, const T threshold) {
