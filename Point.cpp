@@ -1,9 +1,8 @@
 
-#pragma once
-
 #include <cstddef>
 #include <type_traits>
 #include <vector>
+
 #include "Point.hpp"
 
 namespace KM {
