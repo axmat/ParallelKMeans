@@ -20,7 +20,7 @@ private:
 public:
   Point(const std::vector<T> &);
 
-  ~Point(){};
+  ~Point();
 
   std::size_t GetDim() const;
 

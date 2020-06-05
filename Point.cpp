@@ -12,6 +12,8 @@ template <typename T> Point<T>::Point(const std::vector<T> &coord) {
   _assigned = false;
 }
 
+template <typename T> Point<T>::~Point() {}
+
 template <typename T> std::size_t Point<T>::GetDim() const {
   return _coord.size();
 }
@@ -36,6 +38,9 @@ template <typename T> void Point<T>::SetClusterId(const std::size_t &id) {
 template <typename T> bool Point<T>::IsAssigned() const{
   return _assigned;
 }
+
+template class Point<float>;
+template class Point<double>;
 
 } // namespace PKA
 
