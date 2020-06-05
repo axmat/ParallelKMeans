@@ -1,14 +1,14 @@
 CXX = clang++
-CPP_FLAGS = --std=c++17
+CPPFLAGS = --std=c++17
 SRC = ${wildcard *.cpp}
 
 main: ${SRC:%.cpp=%.o}
-	${CXX} -o main $^ ${CPP_FLAGS}
+	${CXX} ${CPPFLAGS} -o main $^
 
 %.o: %.cpp
-	${CXX} -c ${CPP_FLAGS} $< -o $@
+	${CXX} ${CPPFLAGS} -c $^ -o $@
 
-.PHONY:clean
+.PHONY: clean
 
 clean:
 	rm *.o

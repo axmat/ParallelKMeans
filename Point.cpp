@@ -7,6 +7,10 @@
 
 namespace KM {
 
+template <typename T> Point<T>::Point() {
+  _assigned = false;
+}
+
 template <typename T> Point<T>::Point(const std::vector<T> &coord) {
   _coord = coord;
   _assigned = false;

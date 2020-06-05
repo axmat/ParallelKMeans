@@ -18,6 +18,8 @@ private:
   bool _assigned;
 
 public:
+  Point();
+
   Point(const std::vector<T> &);
 
   ~Point();

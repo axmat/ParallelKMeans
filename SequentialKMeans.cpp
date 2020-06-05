@@ -1,6 +1,3 @@
-
-#pragma once
-
 #include <cstddef>
 #include <limits>
 #include <omp.h>
@@ -11,6 +8,7 @@
 
 #include "Cluster.hpp"
 #include "Point.hpp"
+
 #include "SequentialKMeans.hpp"
 
 namespace KM {
@@ -19,7 +17,7 @@ static std::random_device rdev;
 static std::mt19937_64 gen(rdev());
 
 template <typename T>
-auto SeqInitClusters(const std::vector<Point<T>> &data, const std::size_t &nClusters) {
+auto SeqInitClusters(const std::vector<Point<T>>& data, const std::size_t& nClusters) {
   auto nData = data.size();
   std::uniform_int_distribution<std::size_t> unifIntDist(0, nData - 1);
   std::size_t nCluster = unifIntDist(gen);
@@ -39,37 +37,21 @@ auto SeqInitClusters(const std::vector<Point<T>> &data, const std::size_t &nClus
     }
     for(std::size_t j=0;j<nData;j++)
        minPropDist[i] = minDist[i] / sum;
-#ifdef DEBUG
-   std::cout<<"min prop distance"<<std::endl;
-   for(auto &x : minPropDist)
-      std::cout<<x<<" ";
-   std::endl;
-#endif
     std::discrete_distribution<std::size_t> wUnifIntDist(minPropDist.begin(), minPropDist.end());
     nCluster = wUnifIntDist(gen);
     auto nextClusterCoord = data[nCluster].GetCoord();
     auto nextCluster = Cluster<T>(nextClusterCoord);
     clusters.push_back(nextCluster);
   }
-#ifdef DEBUG
-   std::cout<<"Clusters centers"<<std::endl;
-   for(auto &C : clusters)
-      std::cout<<"id : "<<C.GetClusterId()<<std::endl;
-      std::cout<<"coord : "<<C.GetCoord()<<std::endl;
-      std::cout<<"Points id :"<<std::endl;
-      for(auto &id : C.GetPointsId)
-         std::cout<<id<<std::endl;
-   std::endl;
-#endif
   return clusters;
 }
 
 // Squared Euclidian Distance.
 template <typename T>
-T SeqSqEuclidianDist(const Point<T> &point, const Cluster<T> &cluster) {
+T SeqSqEuclidianDist(const Point<T>& point, const Cluster<T>& cluster) {
    auto ndim = point.GetDim();
-   auto &pointCoord = point.GetCoord();
-   auto &clusterCoord = cluster.GetCoord();
+   auto& pointCoord = point.GetCoord();
+   auto& clusterCoord = cluster.GetCoord();
    T dist = T(.0);
    for (std::size_t i = 0; i < ndim; i++){
       auto d = (pointCoord[i] - clusterCoord[i]);
@@ -81,16 +63,16 @@ T SeqSqEuclidianDist(const Point<T> &point, const Cluster<T> &cluster) {
 // Assignment step
 // return number of reassigned points
 template<typename T>
-std::size_t SeqAssignPoints(std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters){
+std::size_t SeqAssignPoints(std::vector<Point<T>>& data, std::vector<Cluster<T>>& clusters){
    std::size_t nData = data.size();
    std::size_t nClusters = clusters.size();
    std::size_t nReasigned = 0;
    for(std::size_t i=0; i < nData; i++) {
-      auto &P = data[i];
+      auto& P = data[i];
       T minDist = SeqSqEuclidianDist(P, clusters[0]);
       std::size_t id = 0;
       for(std::size_t j = 0; j < nClusters; j++) {
-         auto &C = clusters[j];
+         auto& C = clusters[j];
          T dist = SeqSqEuclidianDist(P, C);
          if (dist < minDist){
             minDist = dist;
@@ -108,17 +90,17 @@ std::size_t SeqAssignPoints(std::vector<Point<T>> &data, std::vector<Cluster<T>>
 
 // Update the clusters
 template <typename T>
-void SeqUpdateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters) {
+void SeqUpdateClusters(const std::vector<Point<T>>& data, std::vector<Cluster<T>>& clusters) {
    std::size_t nClusters = clusters.size();
    for(std::size_t nCluster = 0; nCluster < nClusters; nCluster++){
-      auto &C = clusters[nCluster];
+      auto& C = clusters[nCluster];
       auto dim = C.GetDim();
       auto size = C.GetSize();
       auto pointsId = C.GetPointsId();
       std::vector<T> coord(dim, T(.0));
       for(std::size_t i=0; i<size ; i++){
          auto pointId = pointsId[i];
-         auto &P = data[pointId];
+         auto& P = data[pointId];
          auto pCoord = P.GetCoord();
          for(std::size_t j=0; j<dim ; j++)
             coord[j] += pCoord[j];
@@ -133,7 +115,7 @@ void SeqUpdateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>
 // Implementation of sequential KMeans clustering algorithm
 template <typename T>
 std::vector<Cluster<T>>
-SeqKMeans(std::vector<Point<T>> &data, const std::size_t &nClusters, const std::size_t &iterMax, const T threshold) {
+SeqKMeans(std::vector<Point<T>>& data, const std::size_t& nClusters, const std::size_t& iterMax, const T threshold) {
    auto clusters = SeqInitClusters(data, nClusters);
    std::size_t nData = data.size();
    std::size_t nIter = 0;
