@@ -1,12 +1,13 @@
 CXX = clang++
-CPPFLAGS = --std=c++17
+CPPFLAGS = -std=c++17
+OMPFLAGS = -Xpreprocessor -fopenmp -lomp
 SRC = ${wildcard *.cpp}
 
 main: ${SRC:%.cpp=%.o}
 	${CXX} ${CPPFLAGS} -o main $^
 
 %.o: %.cpp
-	${CXX} ${CPPFLAGS} -c $^ -o $@
+	${CXX} ${CPPFLAGS} ${OMPFLAGS} -c $^ -o $@
 
 .PHONY: clean
 
