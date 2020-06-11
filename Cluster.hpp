@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdlib>
+#include <type_traits>
 #include <vector>
 
 #include "Point.hpp"
@@ -17,6 +18,8 @@ private:
   std::vector<T> _coord;
 
 public:
+  Cluster();
+
   Cluster(const std::vector<T> &);
 
   ~Cluster();
@@ -25,13 +28,15 @@ public:
 
   std::size_t GetDim() const;
 
-  const std::vector<T>& GetCoord();
+  const std::vector<T> &GetCoord() const;
 
   void SetCoord(const std::vector<T> &);
 
   void Add(const std::size_t &);
 
-  const std::vector<std::size_t>& GetPointsId();
+  const std::vector<std::size_t> &GetPointsId() const;
+
+  void Update(const std::vector<Point<T>> &);
 
   void Clear();
 };
