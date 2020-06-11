@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdlib>
 #include <type_traits>
 #include <vector>
 
@@ -10,7 +11,7 @@ template <typename T> class Point {
   static_assert(std::is_floating_point<T>::value, "T must be a floating point");
 
 private:
-  // coordinat of a point
+  // coordinate of a point
   std::vector<T> _coord;
   // cluster id
   std::size_t _clusterId;
@@ -37,5 +38,4 @@ public:
   bool IsAssigned() const;
 };
 
-
-} // namespace PKA
+} // namespace KM
