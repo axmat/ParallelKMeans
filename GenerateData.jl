@@ -7,12 +7,12 @@ using Random
 function generateData(n::Int64)
    # Mean
    µ1 = [0.0, 0.0, 0.0]
-   µ2 = [50.0, 50.0, 0.0]
-   µ3 = [0.0, 50.0, 50.0]
+   µ2 = [30.0, 30.0, 0.0]
+   µ3 = [0.0, 30.0, 30.0]
    # Covariance
-   ∑1 = [5.0, 7.0, 14.0]
-   ∑2 = [4.0, 3.0, 12.0]
-   ∑3 = [7.0, 13.0, 5.0]
+   ∑1 = [7.0, 8.0, 14.0]
+   ∑2 = [6.0, 5.0, 12.0]
+   ∑3 = [9.0, 13.0, 8.0]
    # Multivariate normal distributions
    dist1 = MvNormal(µ1, ∑1)
    dist2 = MvNormal(µ2, ∑2)
@@ -31,9 +31,8 @@ function main()
    for (i, k) in enumerate(10.0 .^ range(1,stop=6,length=20))
       n = trunc(Int64, k)
       filename = "data/$i.csv"
-      CSV.write(filename, df[1:n, :]; header = false)
+      CSV.write(filename, df[1:n, :])
    end
 end
 
 main()
-
