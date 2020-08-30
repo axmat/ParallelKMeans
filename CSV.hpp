@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "Cluster.hpp"
 #include "Point.hpp"
@@ -39,22 +40,29 @@ std::vector<Point<T>> readCSV(const std::string &filename, char sep = ',') {
   return data;
 }
 
-template <typename T>
-void writeNextLine(std::ostream &str, const Point<T> &point) {
-  auto &coord = point.GetCoord();
-  std::string line;
-  for (auto &x : point.GetCoord())
-    str << x << ' ';
-  str << point.GetClusterId() << '\n';
-}
-
 // save data to csv file
 template <typename T>
 void writeCSV(const std::string &filename, const std::vector<Point<T>> &data) {
   std::ofstream file(filename);
-  for (auto &P : data)
-    writeNextLine(file, P);
+  for (auto &P : data){
+	 for(auto &x : P.GetCoord())
+		file << x << ' ';
+	 file << P.GetClusterId() << '\n';
+  }
   file.close();
+}
+
+
+template<typename T>
+void writeCSV(const std::string &filename, const std::vector<std::pair<T, T>> &data){
+	std::ofstream file(filename);
+	std::size_t N = data.size();
+	for(std::size_t i = 0; i < N; i++){
+		file << data[i].first << ' ' << data[i].second;
+		if (i < N - 1)
+			file << '\n';
+	}
+	file.close();
 }
 
 } // namespace CSV
