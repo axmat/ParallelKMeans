@@ -17,6 +17,7 @@
 #include "Point.hpp"
 #include "RNG.hpp"
 
+
 namespace KM {
 
 #pragma omp declare reduction(FloatVectorMin : std::vector<float> : \
@@ -38,24 +39,23 @@ namespace KM {
 	std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), [](double& x, double& y){return x+=y; }))
 
 
-void initOpenMP(int num_threads = 16) { omp_set_num_threads(num_threads); }
+void initOpenMP(int num_threads) { omp_set_num_threads(num_threads); }
 
 
 template <typename T>
-void computeDistances(T &sum, std::vector<T> &minDist, std::size_t i,
-                      std::size_t nData, const std::vector<Point<T>> &data,
-                      Cluster<T> &C) {
-  for (std::size_t j = 0; j < nData; j++) {
-    T dist = ParSqEuclidianDist(data[j], C);
-    minDist[i] = std::min(minDist[i], dist);
-    sum += minDist[j];
-  }
+void computeDistances(T &sum, std::vector<T> &minDist, std::size_t i, std::size_t nData,
+      const std::vector<Point<T>> &data, Cluster<T> &C) {
+   for (std::size_t j = 0; j < nData; j++) {
+      T dist = ParSqEuclidianDist(data[j], C);
+      minDist[i] = std::min(minDist[i], dist);
+      sum += minDist[j];
+   }
 }
+
 
 // Initialize centers using kmeans++ algorithm
 template <typename T>
-auto ParInitClusters(const std::vector<Point<T>> &data,
-                     const std::size_t &nClusters) {
+auto ParInitClusters(const std::vector<Point<T>> &data, const std::size_t &nClusters) {
   auto gen = getGenerator();
   const auto nData = data.size();
   std::uniform_int_distribution<std::size_t> unifIntDist(0, nData - 1);
@@ -77,15 +77,13 @@ auto ParInitClusters(const std::vector<Point<T>> &data,
 #pragma omp parallel for firstprivate(nData, data, C) schedule(static) reduction(FloatVectorMin:minDist) reduction(+:sum)
       computeDistances<T>(sum, minDist, i, nData, data, C);
     }
-#pragma omp parallel for firstprivate(nData, minDist) reduction(reduceDist)    \
-    schedule(static)
+#pragma omp parallel for firstprivate(nData, minDist) reduction(reduceDist) schedule(static)
     for (std::size_t j = 0; j < nData; j++)
 #pragma omp critical
       minPropDist[j] = minDist[j] / sum;
 
     if (i < nClusters - 1) {
-      std::discrete_distribution<std::size_t> wUnifIntDist(minPropDist.begin(),
-                                                           minPropDist.end());
+      std::discrete_distribution<std::size_t> wUnifIntDist(minPropDist.begin(), minPropDist.end());
       nCluster = wUnifIntDist(gen);
       auto nextClusterCoord = data[nCluster].GetCoord();
       auto nextCluster = Cluster<T>(nextClusterCoord);
@@ -98,18 +96,17 @@ auto ParInitClusters(const std::vector<Point<T>> &data,
 // Squared Euclidian Distance.
 template <typename T>
 T ParSqEuclidianDist(const Point<T> &point, const Cluster<T> &cluster) {
-  auto ndim = point.GetDim();
-  auto &pointCoord = point.GetCoord();
-  auto &clusterCoord = cluster.GetCoord();
-  T dist = T(.0);
+   auto ndim = point.GetDim();
+   auto &pointCoord = point.GetCoord();
+   auto &clusterCoord = cluster.GetCoord();
+   T dist = T(.0);
 
 #pragma omp parallel for firstprivate(ndim, pointCoord, clusterCoord) schedule(static) reduction(+:dist)
-  for (std::size_t i = 0; i < ndim; i++)
-    dist +=
-        (pointCoord[i] - clusterCoord[i]) * (pointCoord[i] - clusterCoord[i]);
-
-  return dist;
+   for (std::size_t i = 0; i < ndim; i++)
+      dist += (pointCoord[i] - clusterCoord[i]) * (pointCoord[i] - clusterCoord[i]);
+   return dist;
 }
+
 
 // Assignment step
 template <typename T>
@@ -165,76 +162,58 @@ void reduceCoordDiv(std::size_t dim, std::size_t size, std::vector<T> &coord) {
 
 // Update the clusters
 template <typename T>
-void ParUpdateClusters(const std::vector<Point<T>> &data,
-                       std::vector<Cluster<T>> &clusters) {
-  std::size_t k = clusters.size();
-  auto dim = clusters[0].GetDim();
-  std::vector<T> coord(dim, T(.0));
+void ParUpdateClusters(const std::vector<Point<T>> &data, std::vector<Cluster<T>> &clusters) {
+   std::size_t k = clusters.size();
+   auto dim = clusters[0].GetDim();
+   std::vector<T> coord(dim, T(.0));
 
-#pragma omp parallel for shared(clusters) firstprivate(k, data, coord)         \
-    schedule(static)
-  for (std::size_t nCluster = 0; nCluster < k; nCluster++) {
-    auto size = clusters[nCluster].GetSize();
-    auto pointsId = clusters[nCluster].GetPointsId();
+   for (std::size_t nCluster = 0; nCluster < k; nCluster++) {
+      auto size = clusters[nCluster].GetSize();
+      auto pointsId = clusters[nCluster].GetPointsId();
 
-    if constexpr (std::is_same<T, float>::value) {
-#pragma omp parallel for shared(coord) firstprivate(size, data, pointsId)      \
-    schedule(static)
-      for (std::size_t i = 0; i < size; i++) {
-        auto pCoord = data[pointsId[i]].GetCoord();
-#pragma omp parallel for firstprivate(size) reduction(FloatVectorSum           \
-                                                      : coord)                 \
-    schedule(static)
-        reduceCoordSum(dim, pCoord, coord);
+      if constexpr (std::is_same<T, float>::value) {
+#pragma omp parallel for shared(coord) firstprivate(size, data, pointsId) schedule(static)
+         for (std::size_t i = 0; i < size; i++) {
+            auto pCoord = data[pointsId[i]].GetCoord();
+#pragma omp parallel for firstprivate(size) reduction(FloatVectorSum : coord) schedule(static)
+            reduceCoordSum(dim, pCoord, coord);
+         }
+#pragma omp parallel for firstprivate(dim, size) reduction(FloatVectorDiv : coord) schedule(static)
+         reduceCoordDiv(dim, size, coord);
+      } else {
+#pragma omp parallel for shared(coord) firstprivate(size, data, pointsId) schedule(static)
+         for (std::size_t i = 0; i < size; i++) {
+            auto pCoord = data[pointsId[i]].GetCoord();
+#pragma omp parallel for firstprivate(size) reduction(DoubleVectorSum : coord) schedule(static)
+            reduceCoordSum(dim, pCoord, coord);
+         }
+#pragma omp parallel for firstprivate(dim, size) reduction(DoubleVectorDiv : coord) schedule(static)
+         reduceCoordDiv(dim, size, coord);
       }
-#pragma omp parallel for firstprivate(dim, size) reduction(FloatVectorDiv      \
-                                                           : coord)            \
-    schedule(static)
-      reduceCoordDiv(dim, size, coord);
-    } else {
-#pragma omp parallel for shared(coord) firstprivate(size, data, pointsId)      \
-    schedule(static)
-      for (std::size_t i = 0; i < size; i++) {
-        auto pCoord = data[pointsId[i]].GetCoord();
-#pragma omp parallel for firstprivate(size) reduction(DoubleVectorSum          \
-                                                      : coord)                 \
-    schedule(static)
-        reduceCoordSum(dim, pCoord, coord);
-      }
-#pragma omp parallel for firstprivate(dim, size) reduction(DoubleVectorDiv     \
-                                                           : coord)            \
-    schedule(static)
-      reduceCoordDiv(dim, size, coord);
-    }
 
-#pragma omp critical
-    clusters[nCluster].SetCoord(coord);
-
-// clear the cluster
-#pragma omp critical
-    clusters[nCluster].Clear();
-  }
+      clusters[nCluster].SetCoord(coord);
+      clusters[nCluster].Clear();
+   }
 }
 
 // Implementation of Parallel KMeans clustering algorithm
 template <typename T>
 std::vector<Cluster<T>>
-ParKMeans(std::vector<Point<T>> &data, const std::size_t &nClusters,
-          const std::size_t &iterMax = 1000, const T threshold = 0.1) {
-  auto clusters = ParInitClusters(data, nClusters);
-  std::size_t nData = data.size();
-  std::size_t nIter = 0;
-  std::size_t nReasigned = data.size();
-  T fReasigned = T(1.0);
-  while (nIter < iterMax && fReasigned > threshold) {
-    nReasigned = ParAssignPoints(data, clusters);
-    ParUpdateClusters(data, clusters);
-    fReasigned = nReasigned / T(nData);
-    nIter++;
-  }
-  if (fReasigned > threshold)
-    throw std::runtime_error("Parallel KMeans algorithm did not converge.");
-  return clusters;
+ParKMeans(std::vector<Point<T>> &data, const std::size_t &nClusters, const std::size_t &iterMax = 1000, const T threshold = 0.1) {
+   auto clusters = ParInitClusters(data, nClusters);
+   std::size_t nData = data.size();
+   std::size_t nIter = 0;
+   std::size_t nReasigned = data.size();
+   T fReasigned = T(1.0);
+   while (nIter < iterMax && fReasigned > threshold) {
+      nReasigned = ParAssignPoints(data, clusters);
+      ParUpdateClusters(data, clusters);
+      fReasigned = nReasigned / T(nData);
+      nIter++;
+   }
+   if (fReasigned > threshold)
+      throw std::runtime_error("Parallel KMeans algorithm did not converge.");
+   return clusters;
 }
 
 } // namespace KM
