@@ -1,5 +1,5 @@
 CXX = clang++
-CPPFLAGS = -std=c++17
+CPPFLAGS = -std=c++17 -O3
 OMPFLAGS = -Xpreprocessor -fopenmp -lomp
 
 SRC = ${wildcard *.cpp}
