@@ -2,20 +2,26 @@ CXX = clang++
 CPPFLAGS = -std=c++17 -O3
 OMPFLAGS = -Xpreprocessor -fopenmp -lomp
 
-SRC = ${wildcard *.cpp}
+SRCS := $(wildcard src/*.cpp)
 
-SRC_BENCHMARK := $(filter-out example.cpp, $(SRC))
+HEADERS := $(wildcard inc/*.hpp)
 
-SRC_EXAMPLE := $(filter-out benchmark.cpp, $(SRC))
+SRCS_BENCHMARK := $(filter-out src/example.cpp, $(SRCS))
 
-benchmark: ${SRC_BENCHMARK:%.cpp=%.o}
-	${CXX} ${CPPFLAGS} ${OMPFLAGS} -o benchmark $^
+SRCS_EXAMPLE := $(filter-out src/benchmark.cpp, $(SRCS))
 
-example: ${SRC_EXAMPLE:%.cpp=%.o}
-	${CXX} ${CPPFLAGS} -o example $^
+OBJS_BENCHMARK := $(patsubst src/%.cpp,%.o,$(SRCS_BENCHMARK))
 
-%.o: %.cpp
-	${CXX} ${CPPFLAGS} -c $^ -o $@
+OBJS_EXAMPLE := $(patsubst src/%.cpp, %.o, $(SRCS_EXAMPLE))
+
+benchmark: $(OBJS_BENCHMARK)
+	$(CXX) $^ $(CPPFLAGS) $(OMPFLAGS) -o benchmark
+
+example: $(OBJS_EXAMPLE)
+	$(CXX) $^ $(CPPFLAGS) -o example
+
+%.o: src/%.cpp $(HEADERS)
+	$(CXX) $< $(CPPFLAGS) -c -o $@
 
 .PHONY: clean
 
