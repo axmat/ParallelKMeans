@@ -2,11 +2,10 @@ using DataFrames
 using CSV
 using Plots
 
-
 function main()
 
    theme(:ggplot2)
-   data = CSV.read("../data/benchmark.csv", header = false)
+   data = CSV.read("../data/benchmark.csv", DataFrame, header = false)
 
    plot(log10.(data[!, 1]), color=:blue,
         title="Average run time",
