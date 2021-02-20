@@ -7,18 +7,35 @@
 4. Repeats step 2 and 3 until convergence
 
 ## Data set
-Generated from a gaussian mixture distribution
+The data set was generated from a gaussian mixture distribution.
 
-![dataset](images/scatter_plot.png)
+[Clusters](data/clusters.csv) obtained by runing the sequential Kmeans clustering algorithm.
+
+![dataset](images/clusters.png)
+
+## Dependencies
+- C++ compiler with c++-17 support (tested on clang)
+- Make
+- [Optional] Julia (DataFrames, CSV  and Plots packages)
+
+## Building
+To build run ```make```
 
 ## Results
+The following results are obtained for:
+
 - number of clusters : 3
 - number of threads: 32
+- number of repetitions: 30
 - maximum number of iterations: 1000
 - threshold : 0.1
 
+To reproduce the results run ```./benchmark 3 32 30 1000 0.1```
+
 #### Benchmark
 ![benchmark](images/btime.png)
+
+![benchmark](images/btime_nolog.png)
 
 #### Speedup
 ![speedup](images/speedup.png)
@@ -26,7 +43,7 @@ Generated from a gaussian mixture distribution
 ## Conclusion
 - Used OPenMP for parallelization
 - Used speedup to evaluate the performances of the parallelized kmeans algorithm
-- Maximum speedup is ~3.1x
+- Maximum speedup is ~7x
 
 ## References
 1. T Kanungo, DM Mount, NS Netanyahu, C.D. Piatko, R. Silverman, A.Y. Wu. *An efficient k-means clustering algorithm: Analysis and implementation*, in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 24, no. 7, pp. 881-892, July 2002.
